@@ -78,7 +78,7 @@ async function main(conn, config) {
         await utils.updateAuditInfo(conn, config.destinationDb, 'person_address');
         utils.logOk(`Ok... Finished copying ${count} person_address records`);
 
-        // Copying person address
+        // Copying person attribute records
         utils.logInfo('Copying person attributes');
         condition = `EXISTS (SELECT 1 FROM ${config.destinationDb}.person p ` +
             `WHERE ${config.sourceDb}.person_attribute.person_id = p.person_id) `;

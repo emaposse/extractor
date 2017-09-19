@@ -5,14 +5,14 @@ const logTime = utils.logTime;
 const encounterCopier = require('./encounter');
 const locationCopier = require('./location');
 const createDummies = require('./dummy-user-provider');
-const personCopier = require('./person');
+const personCopier = require('./person-user');
+const patientCopier = require('./patient');
 const config = require('./config');
 
 
 async function orchestration() {
     let startTime = Date.now();
     let dryRun = process.argv.some(arg => (arg === '--dry-run'));
-
 
     let conn = null;
     try {
@@ -34,6 +34,7 @@ async function orchestration() {
 
         await personCopier(conn, config);
 
+        await patientCopier(conn, config);
     } catch (ex) {
         await conn.query('SET FOREIGN_KEY_CHECKS=1');
         utils.logError(ex);
