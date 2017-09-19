@@ -13,10 +13,12 @@ const config = require('./config');
 
 async function orchestration() {
     let startTime = Date.now();
-    let dryRun = process.argv.some(arg => (arg === '--dry-run'));
-
     let conn = null;
     try {
+        if(!Array.isArray(config.locationIds) || config.locationIds.length === 0) {
+            throw new Error('Please provided the locationIds');
+        }
+        
         conn = await connection(config);
 
         utils.logInfo(logTime(), ': Disabling Foreign Key checks on destination');

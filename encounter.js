@@ -36,6 +36,7 @@ async function main(connection, config) {
 
         let moved = await utils.getCount(connection, config.destinationDb,
                                                                 'encounter');
+        await utils.updateAuditInfo(connection, config.destinationDb, 'encounter');
         utils.logOk(`Ok... ${moved} encounter records moved.`);
 
         utils.logInfo('Moving encounter providers...');
@@ -45,6 +46,8 @@ async function main(connection, config) {
         await connection.query(query);
         moved = await utils.getCount(connection, config.destinationDb,
                                                         'encounter_provider');
+        await utils.updateAuditInfo(connection, config.destinationDb,
+                                                        'encounter_provider'); 
         utils.logOk(`Ok... ${moved} encounter_provider records moved.`);
     }
     catch(err) {
