@@ -6,6 +6,7 @@ const encounterCopier = require('./encounter');
 const locationCopier = require('./location');
 const createDummies = require('./dummy-user-provider');
 const personCopier = require('./person-user');
+const gaacCopier = require('./gaac');
 const patientCopier = require('./patient');
 const config = require('./config');
 
@@ -35,6 +36,8 @@ async function orchestration() {
         await personCopier(conn, config);
 
         await patientCopier(conn, config);
+
+        await gaacCopier(conn, config);
     } catch (ex) {
         await conn.query('SET FOREIGN_KEY_CHECKS=1');
         utils.logError(ex);

@@ -1,5 +1,6 @@
 'use strict';
 const utils = require('./utils');
+const DUMMY_USER_ID = require('./constants').DUMMY_USER_ID;
 
 async function main(conn, config) {
     let countBefore, count, condition, sql;
@@ -72,7 +73,7 @@ async function main(conn, config) {
         utils.logOk(`Ok...Finished copying ${count} visits`);
 
         // copying obs records.
-        utils.logInfo('Copying patient programs associated with copied patients...');
+        utils.logInfo('Copying obs associated with copied patients...');
         condition = `EXISTS (SELECT 1 FROM ${config.destinationDb}.patient WHERE ` +
             `${config.sourceDb}.obs.person_id = ` +
             `${config.destinationDb}.patient.patient_id)`;
@@ -81,7 +82,9 @@ async function main(conn, config) {
         count = await utils.getCount(conn, config.destinationDb, 'obs');
 
         // Update obs audit info
-        await utils.updateAuditInfo(conn, config.destinationDb, 'obs');
+        sql = `UPDATE ${config.destinationDb}.obs SET creator = ${DUMMY_USER_ID}` +
+            `, voided_by = IF(voided, ${DUMMY_USER_ID}, NULL)`;
+        await conn.query(sql);
         utils.logOk(`Ok...Finished copying ${count} obs`);
     }
     catch(ex) {
