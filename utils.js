@@ -3,6 +3,7 @@ const moment = require('moment');
 const mysql = require('mysql2');
 const uuidGenerator = require('uuid/v1');
 const config = require('./config');
+const DUMMY_USER_ID = require('./constants').DUMMY_USER_ID;
 
 if (config.batchSize === undefined) {
     config.batchSize = 500;
@@ -17,6 +18,27 @@ function createInsertSQL(table, condition) {
     }
     return sql;
 }
+
+// dataTable as opposed to metadata table (i.e voided vs retired)
+let updateAuditInfo = async function(connection, database, table, dataTable) {
+    dataTable = dataTable || true;
+    let v = dataTable ? 'voided' : 'retired';
+    let vBy = dataTable ? 'voided_by' : 'retired_by';
+    let sql = `UPDATE ${database}.${table} SET creator = ${DUMMY_USER_ID}` +
+        `, ${vBy} = IF(${v}, ${DUMMY_USER_ID}, NULL)` +
+        `, changed_by = IF(changed_by, ${DUMMY_USER_ID}, NULL)`;
+
+    try {
+        let [r] = await connection.query(sql);
+        return r;
+    }
+    catch(ex) {
+        logError(`Error while updated audit information for table ${table}`);
+        logError(`SQL statement: `, sql);
+        throw ex;
+    }
+}
+
 // let getNextAutoIncrementId = async function(connection, table) {
 //     if (arguments.length < 2) {
 //         throw new Error('This utility function expects connection & table in that order');
@@ -268,6 +290,7 @@ async function personIdsToexclude(connection) {
 module.exports = {
     // getNextAutoIncrementId: getNextAutoIncrementId,
     createInsertSQL: createInsertSQL,
+    updateAuditInfo: updateAuditInfo,
     getCount: getCount,
     stringValue: stringValue,
     moveAllTableRecords: moveAllTableRecords,

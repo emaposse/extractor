@@ -5,6 +5,7 @@ const logTime = utils.logTime;
 const encounterMover = require('./encounter');
 const locationMover = require('./location');
 const createDummies = require('./dummy-user-provider');
+const personCopier = require('./person');
 const config = require('./config');
 
 
@@ -32,49 +33,15 @@ async function orchestration() {
         utils.logInfo(logTime(), ': Starting data migration ...');
 
         // Create the dummies.
-        await createDummies(conn, config);
-        // Selected locations
-        await locationMover(conn, config);
+        // await createDummies(conn, config);
+        // // Selected locations
+        // await locationMover(conn, config);
+        //
+        // // Encounters
+        // await encounterMover(conn, config);
 
-        // Encounters
-        await encounterMover(conn, config);
+        await personCopier(conn, config);
 
-        // await movePersonsUsersAndAssociatedTables(srcConn, destConn);
-        //
-        // utils.logInfo('Consolidating locations...');
-        // let movedLocations = await locationsMover(srcConn, destConn);
-        // utils.logOk(`Ok...${movedLocations} locations moved.`);
-        //
-        // //patients & identifiers
-        // await patientsMover(srcConn, destConn);
-        //
-        // //programs
-        // await programsMover(srcConn, destConn);
-        //
-        // //providers & provider attributes
-        // await providersMover(srcConn, destConn);
-        //
-        // //visits & visit types
-        // await visitsMover(srcConn, destConn);
-        //
-        // //encounters, encounter_types, encounter_roles & encounter_providers
-        // await encounterMover(srcConn, destConn);
-        //
-        // //obs
-        // await obsMover(srcConn, destConn);
-        //
-        // //gaac tables
-        // await gaacModuleTablesMover(srcConn, destConn);
-        //
-        //
-        // if(dryRun) {
-        //     destConn.query('ROLLBACK');
-        //     utils.logOk(`Done...No database changes have been made!`)
-        // }
-        // else {
-        //     destConn.query('COMMIT');
-        //     utils.logOk(`Done...All Data from ${config.source.location} copied.`);
-        // }
     } catch (ex) {
         await conn.query('SET FOREIGN_KEY_CHECKS=1');
         utils.logError(ex);
