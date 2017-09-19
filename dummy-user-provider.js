@@ -8,7 +8,7 @@ const DUMMY_PROVIDER_ID = require('./constants').DUMMY_PROVIDER_ID;
 
 const nowDate = strValue(utils.formatDate((new Date()).toISOString()));
 
-async function makeDummyUser(conn, config) {
+async function dummying(conn, config) {
     let dummyUsername = config.dummyUsername || 'DummyUser';
     let sql = `SELECT max(person_id) AS 'maxi_p' FROM ${config.sourceDb}.person`;
 
@@ -36,42 +36,6 @@ async function makeDummyUser(conn, config) {
         utils.logInfo(`Insert dummy user ${dummyUsername}`);
         await conn.query(sql);
         utils.logOk(`Ok...dummy user inserted`);
-    }
-    catch(ex) {
-        utils.logError('An error occured while dummying the destination...');
-        if(sql) {
-            utils.logError('Insert statement during the error:');
-            utils.logError(sql);
-        }
-        throw ex;
-    }
-}
-
-async function dummying(conn, config) {
-    let condition = `username IN ('admin', 'daemon') OR ` +
-                            `system_id IN ('admin', 'daemon')`;
-    let sql = utils.createInsertSQL('users', condition);
-
-    try {
-        utils.logInfo('Moving selected users');
-        await conn.query(sql);
-        utils.logOk('Ok...Users moved.');
-
-        // now make the associated person if any.
-        condition = `person_id IN (SELECT person_id FROM ` +
-            `${config.destinationDb}.users)`;
-        sql = utils.createInsertSQL('person', condition);
-
-        utils.logInfo(`Moving assocatied person records`);
-        await conn.query(sql);
-        utils.logOk(`Ok...Persons moved`);
-
-        sql = utils.createInsertSQL('person_name', condition);
-        utils.logInfo('Moving associated person_name records');
-        await conn.query(sql);
-        utils.logOk(`Ok...Person names moved`);
-
-        await makeDummyUser(conn, config);
 
         // Make a dummy provider.
         let dummyProviderName = config.dummyProviderName || 'Dummy Provider';
@@ -85,7 +49,7 @@ async function dummying(conn, config) {
         utils.logOk(`Ok...Dummy provider in!`);
     }
     catch(ex) {
-        utils.logError('An error occured');
+        utils.logError('An error occured while dummying the destination...');
         if(sql) {
             utils.logError('Insert statement during the error:');
             utils.logError(sql);
