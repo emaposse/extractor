@@ -89,6 +89,28 @@ async function main(conn, config) {
         await utils.updateAuditInfo(conn, config.destinationDb, 'person_attribute');
         utils.logOk(`Ok... Finished copying ${count} person_attribute records`);
 
+        // Copying gaac_member records
+        utils.logInfo('Copying gaac_member records');
+        condition = `EXISTS (SELECT 1 FROM ${config.destinationDb}.person p ` +
+            `WHERE ${config.sourceDb}.gaac_member.member_id = p.person_id) `;
+        sql = utils.createInsertSQL('gaac_member', condition);
+        await conn.query(sql);
+
+        count = await utils.getCount(conn, config.destinationDb, 'gaac_member');
+        await utils.updateAuditInfo(conn, config.destinationDb, 'gaac_member');
+        utils.logOk(`Ok... Finished copying ${count} gaac_member records`);
+
+        // Copying gaac records
+        utils.logInfo('Copying gaac records');
+        condition = `EXISTS (SELECT 1 FROM ${config.destinationDb}.gaac_member gm ` +
+            `WHERE ${config.sourceDb}.gaac.gaac_id = gm.gaac_id) `;
+        sql = utils.createInsertSQL('gaac', condition);
+        await conn.query(sql);
+
+        count = await utils.getCount(conn, config.destinationDb, 'gaac');
+        await utils.updateAuditInfo(conn, config.destinationDb, 'gaac');
+        utils.logOk(`Ok... Finished copying ${count} gaac records`);
+
     }
     catch(ex) {
         utils.logError(`An error occured when copying person data...`);
