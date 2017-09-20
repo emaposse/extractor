@@ -21,7 +21,7 @@ function createInsertSQL(table, condition) {
 
 // dataTable as opposed to metadata table (i.e voided vs retired)
 let updateAuditInfo = async function(connection, database, table, dataTable) {
-    dataTable = dataTable || true;
+    if(dataTable === undefined) dataTable = true;
     let v = dataTable ? 'voided' : 'retired';
     let vBy = dataTable ? 'voided_by' : 'retired_by';
     let sql = `UPDATE ${database}.${table} SET creator = ${DUMMY_USER_ID}` +
