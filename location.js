@@ -18,7 +18,7 @@ async function moveSelectedLocations(conn, config) {
     try {
         utils.logInfo('Moving selected locations');
         await conn.query(sql);
-        await utils.updateAuditInfo(conn, config.destinationDb, 'location');
+        await utils.updateAuditInfo(conn, config.destinationDb, 'location', false);
         utils.logOk(`Ok...Selected locations moved.`);
     }
     catch(ex) {
