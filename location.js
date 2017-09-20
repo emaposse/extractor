@@ -1,4 +1,5 @@
 const utils = require('./utils');
+const DUMMY_USER_ID = require('./constants').DUMMY_USER_ID;
 
 async function moveSelectedLocations(conn, config) {
     if(Array.isArray(config.locationIds) && config.locationIds.length === 0) {
